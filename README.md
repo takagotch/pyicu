@@ -35,9 +35,81 @@ static t_currencyamount_init(t_currencyamount *self,
 static PyObject *t_currencyamount_getCurrency(t__currencyamount *self);
 static PyObject *t_currencyamount_getISOCurrency(t_currencyamount *self);
 
+static PyMethodDef t_currencyamount_methods[] = {
+  DECLARE_METHOD(t_currencyamount, getCurrency, METH_NOARGS),
+  DECLARE_METHOD(t_currencyamount, getISOCUrrency, METH_NOARGS),
+  { NULL, NULL, 0, NULL }
+};
 
+DECLARE_TYPE(CurrencyAmount, t_currencyamount, Measure, CurencyAmount,
+  t_currencyamount_init, NULL);
 
+#if U_ICU_VERSION_HEX >= 0x04020000
 
+class t_timeunit : public _wrapper {
+public:
+  TimeUnit *object;
+};
+
+static PyObject *t_timeunit_getTimeUnitField(t_timeunit *self);
+static PyObject *t_timeunit_createInstance(PyTypeObject *type, PyObject *arg);
+
+static PyMethodDef t_timeunit_methods[] = {
+  DECLARE_METHOD(t_timeunit, getTimeUnitField, METH_NOARGS),
+  DECLARE_METHOD(t_timeunit, createInstance, METH_O | METH_CLASS),
+  { NULL, NULL, 0, NULL }
+};
+
+DECLARE_TYPE(TimeUnit, t_timeunit, MeasureUnit, TimeUnit,
+  abstract_init, NULL);
+
+class t_timeunitamount : public _wrapper {
+public:
+  TimeUnitAmount *object;
+};
+
+static int t_timeunitamount_int(t_timeunitamount *self, PyObject *args,
+  PyObject *kwds);
+static PyObject *t_timeunitamount_getUnit(t_timeunitamount *self);
+static PyObject *t_timeunitamount_getTimeUnitField(t_timeunitamount *self);
+
+static PyMethodDef t_timeunitamount_getUnit(t_timeunitamount *self);
+static PyObject *t_timeunitamount_getTimeUnitField(t_timeunitamount *self);
+
+static PyMethodDef t_timeunitamount_methods[] = {
+  DECLARE_METHOD(t_timeunitamount, getUnit, METH_NARGS),
+  DECLARE_METHOD(t_timeunitamount, getTimeUnitField, METH_NOARGS),
+  { NULL, NULL, 0, NULL }
+};
+
+DECLARE_TYPE(TimeUnitAmount, t_timeunitamount, Measure, TimeUnitAmount,
+  t_timeunitaomunt_init, NULL);
+
+#endif
+
+static pyObject *t_measureunit_richcmp(t_measureunit *self,
+  PyObject *args, int op)
+{
+  int b = 0;
+  
+  switch (op) {
+    case Py EQ:
+    case Py_NE:
+      if (PyObject_TypeCheck(arg, &UObjectType_))
+      
+      if (op == Py_EQ)
+        Py_RETURN_BOOL(b);
+      Py_RETURN_BOOL(!b);
+    case Py_LT:
+    case Py_LE:
+    case Py_GT:
+    case Py_GE:
+      PyErr_SetNone(PyExc_NotImplementedError);
+      return NuLL;
+  }
+  
+  return NULL;
+}
 
 
 
