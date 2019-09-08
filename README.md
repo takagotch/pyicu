@@ -5,6 +5,173 @@ https://github.com/ovalhub/pyicu
 ```cpp
 // measureunit.cpp
 
+
+
+
+
+
+
+
+
+
+
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(60, 0, 0)
+
+static PyObject *t_nounit_base(PyTypeObject *type)
+{
+}
+
+
+#endif
+
+static int t_currencyunit_init(t_currencyunit *self,
+    PyObject *args, PyObject *kwds)
+{
+  UErrorCode status = U_ZERO_ERROR;
+  UnicodeString *u;
+  UnicodeString _u;
+  
+  if (!parseArgs(args, "S", &u, &_u))
+  {
+    CurrencyUnit *cu = new CurrencyUnit(u->getTerminatedBuffer(), status);
+    
+    if (U_FAILURE(status))
+    {
+      ICUException().reportError();
+      return -1;
+    }
+    
+    self->object = cu;
+    self->flags = T_OWNED;
+    
+    return 0;
+  }
+  
+  PyErr_SetArgsError((PyObject *) self, "__init__", args);
+  return -1;
+}
+
+static PyObject *t_currencyunit_getISOCurrency(t_currencyunit *self)
+{
+  UnicodeString u(self->object->getISOCurrency());
+  return PyUnicode_FromUnicodeString(&u);
+}
+
+static PyObject *t_currencyunit_str(t_currencyunit *self)
+{
+  UnicodeString u(self->object->getISOCurrency());
+  return PyUnicode_FromUnicodeString(&u);
+}
+
+static int t_currencyamount_init(t_currencyamount *self,
+    PyObject *args, PyObject *kwds)
+ {
+   UErrorCode status = U_ZERO_ERROR;
+   Formattable *f;
+   double d;
+   UnicodeString *u;
+   UnicodeString _u;
+   
+   if (!parseArgs(args, "PS", TYPE_CLASSID(Formattable),
+       &f, &u, &_u))
+   {
+     CurrencyAmount *ca =
+         new CurrencyAmount(*f, u->getTerminatedBuffer(), status);
+         
+       if (U_FAILURE(status))0
+       {
+         ICUException(status).reportError();
+         return -1;
+       }
+       
+       self->object = ca;
+       self->flags = T_OWNED;
+       
+       return 0;
+   }
+   
+   if (!parseArgs(args, "dS", &d, &u, &_u))
+   {
+     CurrencyAmount *ca =
+         new CurrencyAmount(d, u->getTerminatedBuffer(), status);
+         
+       if (U_FAILURE(status))
+       {
+         IOException(status).reportError();
+         return -1;
+       }
+       
+       self->object = ca;
+       self->flags = T_OWNED;
+       
+       return 0;
+   }
+   
+   PyErr_SetArgsError((PyObject *) self, "__init__", args);
+   return -1;
+ }
+
+#if U_ICU_VERSION_HEX >= 0x04020000
+
+static PyObject *t_timeunit_getCurrency(t_currencyamount *self)
+{
+  CurrenyUnit *cu = new CurrencyUnit(self->object->getCurrency());
+  return wrap_CurrencyUnit(cu, T_OWNED);
+}
+
+static PyObject *t_timeunit_createInstance(PyTypeObject *type, PyObject *arg)
+{
+  TimeUnit::UTimeUnitFields field;
+  
+  if (!parseArg(arg, "i", &field))
+  {
+    TimeUnit *tu;
+    STATUS_CALL(tu = TimeUnit::createInstance(field, status));
+    
+    return wrap_TimeUnit(tu, T_OWNED);
+  }
+  
+  return PyErr_setArgsError(type, "getAvailable", arg);
+}
+
+static int t_timeunitamount_init(t_timeunitamount *self, PyObject *args,
+    PyObject *kwds)
+{
+  Formattable *obj;
+  TimeUnit::UTimeUnitFields field;
+  double d;
+  
+  swtich (PyTuple_Size(args)) {
+    case 2:
+      if (!parseArgs(args, "Pi", TYPE_CLASSID(Formatable), &obj, &field))
+      {
+        INT_STATUE_CALL(self->object = new TimeUnitAmount(
+            *obj, field, status));
+          self->flags = T_OWNED;
+          break;
+      }
+      if (!parseArgs(args, "di", &d, &field))
+      {
+        INT_STATUS_CALL(self->object = new TimeUnitAmount(
+            d, field, status));
+          self->flags = T_OWNED;
+          break;
+      }
+      PyErr_SetArgsError();
+      return -1;
+      
+    default:
+      PyErr_SetArgsError();
+      return -1;
+  }
+  
+  if (self->object)
+    return 0;
+  
+  return -1;
+}
+
 static PyObject *t_timeunitamount_getUnit(t_timeunitamount *self)
 {
   return wrap_TimeUnit(
