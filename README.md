@@ -8,6 +8,36 @@ https://github.com/ovalhub/pyicu
 
 
 
+class t_currencyunit : public _wrapper {
+public:
+  CurrencyUnit *object;
+};
+
+static int t_currencyunit_init(t_currencyunit *self,
+  PyObject *args, PyObject *kwds);
+static PyObject *t_currencyunit_getISONCurrency(t_currencyunit *self);
+
+static PyMethodDef t_currencyunit_methods[] = {
+  DECLARE_METHOD(t_currencyunit, getISOCUrrency, METH_NOARGS),
+  { NULL, NULL, 0, NULL }
+};
+
+DECLARE_TYPE(CurrencyUnit, t_currencyunit, MeasureUnit, CurrencyUnit,
+  t_currencyunit_init, NULL);
+
+class t_currencyamount : public _wrapper {
+public:
+  CurrencyAmount *object;
+};
+
+static t_currencyamount_init(t_currencyamount *self,
+  PyObject *args, PyObject *kwds);
+static PyObject *t_currencyamount_getCurrency(t__currencyamount *self);
+static PyObject *t_currencyamount_getISOCurrency(t_currencyamount *self);
+
+
+
+
 
 
 
